@@ -126,7 +126,7 @@ class AssetManager:
             'bsod': (100, 100, (0, 0, 255))
         }
 
-        scale_targets = {"jesus", "bsod"}
+        scale_targets = {"jesus","bsod"}
         scale_factor = 0.4
 
         for key, (width, height, color) in custom_images.items():
@@ -134,9 +134,22 @@ class AssetManager:
                 img_path = os.path.join(image_path, f"{key}.png")
                 if os.path.exists(img_path):
                     img = pygame.image.load(img_path).convert_alpha()
-                    if key in scale_targets:
+                    if key == "jesus":
                         w, h = img.get_size()
-                        new_size = (int(w * scale_factor), int(h * scale_factor))
+                        new_size = (int(w * 0.4), int(h * scale_factor))
+                        img = pygame.transform.scale(img, new_size)
+                    elif key == "tang":
+                        w, h = img.get_size()
+                        new_size = (int(w * 0.3), int(h * scale_factor))
+                        img = pygame.transform.scale(img, new_size)
+                    elif key == "bsod":
+                        w, h = img.get_size()
+                        new_size = (int(w * 0.3), int(h * scale_factor))
+                        img = pygame.transform.scale(img, new_size)
+                    
+                    else:
+                        w, h = img.get_size()
+                        new_size = (int(w * 1.0), int(h * scale_factor))
                         img = pygame.transform.scale(img, new_size)
                     self.images[key] = img
                 else:
@@ -144,6 +157,32 @@ class AssetManager:
             except (pygame.error, FileNotFoundError):
                 surf = pygame.Surface((width, height), pygame.SRCALPHA)
                 surf.fill(color)
+                self.images[key] = surf
+
+        # Load powerup images
+        powerup_images = {
+            'shield': (32, 32, (0, 191, 255)),       # Deep Sky Blue circle
+            'rapid_fire': (32, 32, (255, 215, 0)),  # Gold lightning bolt
+            'spread_shot': (32, 32, (148, 0, 211)), # Dark Violet three dots
+        }
+
+        for key, (width, height, color) in powerup_images.items():
+            try:
+                img_path = os.path.join(image_path, f"{key}.png")
+                if os.path.exists(img_path):
+                    self.images[key] = pygame.image.load(img_path).convert_alpha()
+                else:
+                    raise FileNotFoundError()
+            except (pygame.error, FileNotFoundError):
+                surf = pygame.Surface((width, height), pygame.SRCALPHA)
+                if key == 'shield':
+                    pygame.draw.circle(surf, color, (width//2, height//2), width//2, 3)
+                elif key == 'rapid_fire':
+                    pygame.draw.polygon(surf, color, [(16, 2), (8, 16), (14, 16), (6, 30), (24, 14), (18, 14)])
+                elif key == 'spread_shot':
+                    pygame.draw.circle(surf, color, (width//2, 8), 4)
+                    pygame.draw.circle(surf, color, (8, 24), 4)
+                    pygame.draw.circle(surf, color, (width - 8, 24), 4)
                 self.images[key] = surf
 
     def load_sounds(self):

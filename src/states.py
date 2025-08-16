@@ -4,6 +4,7 @@ from src.sprites import Player
 from src.enemy import Enemy
 from src.attack_patterns import EnemyBullet
 from src.wave_manager import WaveManager
+from src.powerups import PowerUp
 import random
 
 class State:
@@ -34,6 +35,7 @@ class GameplayState(State):
         self.bullet_group = pygame.sprite.Group()  # Player bullets
         self.enemy_group = pygame.sprite.Group()
         self.enemy_bullet_group = pygame.sprite.Group()  # Enemy bullets
+        self.powerup_group = pygame.sprite.Group()  # Power-ups
         
         # Create player
         player_pos = (SCREEN_WIDTH // 2, SCREEN_HEIGHT - 100)
@@ -49,6 +51,10 @@ class GameplayState(State):
         # Wave management
         sprite_groups = [self.all_sprites, self.enemy_group, self.enemy_bullet_group]
         self.wave_manager = WaveManager(game.asset_manager, self.player, sprite_groups)
+        
+    def spawn_powerup(self, pos):
+        """Spawns a power-up at a given position."""
+        PowerUp(pos, self.game.asset_manager, [self.all_sprites, self.powerup_group])
         
     def handle_events(self, events):
         """Handle gameplay events"""
@@ -108,6 +114,9 @@ class GameplayState(State):
             for enemy in enemies:
                 if enemy.take_damage():
                     self.score += enemy.get_score_value()
+                    # Chance to spawn power-up on enemy kill
+                    if random.random() < POWERUP_DROP_CHANCE:
+                        self.spawn_powerup(enemy.rect.center)
                     
         # Player vs enemies (contact damage)
         hits = pygame.sprite.spritecollide(self.player, self.enemy_group, False)
@@ -121,6 +130,11 @@ class GameplayState(State):
         if hits and not self.player.invulnerable:
             for bullet in hits:
                 self.player.take_damage(15)  # Moderate damage from bullets
+        
+        # Player vs power-ups
+        hits = pygame.sprite.spritecollide(self.player, self.powerup_group, True)
+        for powerup in hits:
+            self.player.add_powerup(powerup.powerup_type)
             
     def draw(self, screen):
         """Draw gameplay state"""

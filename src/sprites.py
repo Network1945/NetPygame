@@ -35,6 +35,12 @@ class Player(pygame.sprite.Sprite):
         # Asset manager reference
         self.asset_manager = asset_manager
         
+        # Powerup attributes
+        self.active_effects = {}  # Store active power-up effects
+        self.has_spread_shot = False
+        self.shield_health = 0
+        self.shield_image = None
+        
         # Sprite groups will be set by the game state
         self.all_sprites = None
         self.bullet_group = None
@@ -61,12 +67,18 @@ class Player(pygame.sprite.Sprite):
             self.shoot()
             
     def shoot(self):
-        """Create bullets based on weapon level"""
+        """Create bullets based on weapon level or active power-ups"""
         current_time = pygame.time.get_ticks()
         if current_time - self.last_shot_time > self.shoot_delay:
             self.last_shot_time = current_time
             
-            if self.weapon_level == 1:
+            # Check for spread shot power-up
+            if self.has_spread_shot:
+                # 3-way spread shot, distinct from weapon level
+                Bullet(self.rect.midtop, self.asset_manager, [self.all_sprites, self.bullet_group], angle=0)
+                Bullet(self.rect.center, self.asset_manager, [self.all_sprites, self.bullet_group], angle=-30)
+                Bullet(self.rect.center, self.asset_manager, [self.all_sprites, self.bullet_group], angle=30)
+            elif self.weapon_level == 1:
                 # Single bullet from center
                 Bullet(self.rect.midtop, self.asset_manager, [self.all_sprites, self.bullet_group])
             elif self.weapon_level == 2:
@@ -89,9 +101,19 @@ class Player(pygame.sprite.Sprite):
             self.weapon_level = 5
             
     def take_damage(self, damage=20):
-        """Take damage if not invulnerable"""
+        """Take damage if not invulnerable, depleting shield first"""
         if self.invulnerable or self.is_dead:
             return False
+        
+        # Deplete shield first
+        if self.shield_health > 0:
+            self.shield_health -= 1
+            if self.shield_health <= 0:
+                # Shield broke, remove the effect
+                if 'shield' in self.active_effects:
+                    self.active_effects['shield'].remove(self)
+                    del self.active_effects['shield']
+            return False  # Player doesn't take health damage
             
         self.health -= damage
         
@@ -144,8 +166,44 @@ class Player(pygame.sprite.Sprite):
         self.pos.x = self.rect.centerx
         self.pos.y = self.rect.centery
         
+    def add_powerup(self, powerup_type):
+        """Adds a power-up effect to the player."""
+        # Import here to avoid circular imports
+        from src.powerups import RapidFireEffect, SpreadShotEffect, EnergyShieldEffect
+        
+        # Remove existing effect of the same type before adding a new one
+        if powerup_type in self.active_effects:
+            self.active_effects[powerup_type].remove(self)
+
+        effect = None
+        if powerup_type == 'rapid_fire':
+            effect = RapidFireEffect()
+        elif powerup_type == 'spread_shot':
+            effect = SpreadShotEffect()
+        elif powerup_type == 'shield':
+            effect = EnergyShieldEffect()
+        
+        if effect:
+            self.active_effects[powerup_type] = effect
+            effect.apply(self)
+
+    def update_powerups(self):
+        """Update active power-up effects and remove expired ones."""
+        to_remove = []
+        for key, effect in self.active_effects.items():
+            effect.update(self)
+            if not effect.is_active():
+                to_remove.append(key)
+        
+        for key in to_remove:
+            self.active_effects[key].remove(self)
+            del self.active_effects[key]
+        
     def update(self, dt):
         """Update player state"""
+        # Update power-ups
+        self.update_powerups()
+        
         # Don't process input if dead
         if not self.is_dead:
             self.get_input()
@@ -164,7 +222,15 @@ class Player(pygame.sprite.Sprite):
                 self.invulnerable = False
                 
     def draw(self, screen):
-        """Custom draw method to handle invulnerability flashing"""
+        """Custom draw method to handle invulnerability flashing and shield"""
+        # Draw shield
+        if self.shield_health > 0 and self.shield_image:
+            # Pulsate shield alpha for visual effect
+            alpha = 128 + int((pygame.time.get_ticks() % 1000) / 1000 * 127)
+            self.shield_image.set_alpha(alpha)
+            shield_rect = self.shield_image.get_rect(center=self.rect.center)
+            screen.blit(self.shield_image, shield_rect)
+        
         if self.invulnerable:
             # Flash every 100ms during invulnerability
             current_time = pygame.time.get_ticks()

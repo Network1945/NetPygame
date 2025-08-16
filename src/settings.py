@@ -23,6 +23,7 @@ BULLET_SPEED = 500
 
 # Enemy settings
 ENEMY_SPEED = 150
+POWERUP_DROP_CHANCE = 0.1  # 10% chance for an enemy to drop a powerup
 
 # Game settings
 SCORE_FONT_SIZE = 24

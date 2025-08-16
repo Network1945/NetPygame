@@ -180,7 +180,7 @@ class WaveManager:
         if wave_number == 5:
             return "angry_migam"
         elif wave_number == 10:
-            return "handsome_gilgil"
+            return "angry_migam"  # "handsome_gilgil"에서 변경
         else:
             # For other boss waves, cycle through a default list
             boss_types = ["cyber_fortress", "network_overlord", "packet_storm"]
