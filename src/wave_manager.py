@@ -60,8 +60,7 @@ class WaveManager:
             "1": {
                 "name": "Scout Wave",
                 "enemies": {
-                    "scout": 8,
-                    "basic": 4
+                    "scout": 8
                 },
                 "spawn_delay": 1200,
                 "spawn_pattern": "random"
@@ -70,8 +69,7 @@ class WaveManager:
                 "name": "Fighter Squadron", 
                 "enemies": {
                     "fighter": 6,
-                    "scout": 6,
-                    "basic": 3
+                    "scout": 6
                 },
                 "spawn_delay": 1000,
                 "spawn_pattern": "random"

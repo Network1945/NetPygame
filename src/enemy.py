@@ -62,7 +62,7 @@ class Enemy(pygame.sprite.Sprite):
         try:
             with open(config_path, 'r') as f:
                 configs = json.load(f)
-                return configs.get(enemy_type, configs.get('basic', self.get_default_config()))
+                return configs.get(enemy_type, configs.get('scout', self.get_default_config()))
         except (FileNotFoundError, json.JSONDecodeError):
             return self.get_default_config()
             

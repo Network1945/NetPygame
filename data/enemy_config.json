@@ -73,18 +73,5 @@
       "bullet_count": 8,
       "bullet_speed": 250
     }
-  },
-  "basic": {
-    "health": 15,
-    "asset_key": "enemy",
-    "movement": {
-      "type": "straight",
-      "speed": 100
-    },
-    "attack": {
-      "type": "single_shot_down",
-      "cooldown": 2.5,
-      "bullet_speed": 280
-    }
   }
 }

@@ -2,8 +2,7 @@
   "1": {
     "name": "Scout Patrol",
     "enemies": {
-      "scout": 6,
-      "basic": 4
+      "scout": 6
     },
     "spawn_delay": 1500,
     "spawn_pattern": "random"
@@ -12,8 +11,7 @@
     "name": "Fighter Squadron", 
     "enemies": {
       "fighter": 4,
-      "scout": 6,
-      "basic": 3
+      "scout": 6
     },
     "spawn_delay": 1200,
     "spawn_pattern": "formation"
@@ -48,8 +46,7 @@
       "interceptor": 6,
       "gunship": 4,
       "fighter": 8,
-      "scout": 6,
-      "basic": 2
+      "scout": 6
     },
     "spawn_delay": 800,
     "spawn_pattern": "formation"

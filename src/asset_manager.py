@@ -62,7 +62,12 @@ class AssetManager:
         for enemy_key, (width, height, color) in enemy_types.items():
             try:
                 if os.path.exists(os.path.join(image_path, f'{enemy_key}.png')):
-                    self.images[enemy_key] = pygame.image.load(os.path.join(image_path, f'{enemy_key}.png')).convert_alpha()
+                    img = pygame.image.load(os.path.join(image_path, f'{enemy_key}.png')).convert_alpha()
+                    # Scale down the image (e.g., to half size)
+                    scale_factor = 0.1
+                    new_size = (int(img.get_width() * scale_factor), int(img.get_height() * scale_factor))
+                    img = pygame.transform.smoothscale(img, new_size)
+                    self.images[enemy_key] = img
                 else:
                     raise FileNotFoundError()
             except (pygame.error, FileNotFoundError):
