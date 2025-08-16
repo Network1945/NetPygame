@@ -126,10 +126,19 @@ class AssetManager:
             'bsod': (100, 100, (0, 0, 255))
         }
 
+        scale_targets = {"jesus", "bsod"}
+        scale_factor = 0.4
+
         for key, (width, height, color) in custom_images.items():
             try:
-                if os.path.exists(os.path.join(image_path, f'{key}.png')):
-                    self.images[key] = pygame.image.load(os.path.join(image_path, f'{key}.png')).convert_alpha()
+                img_path = os.path.join(image_path, f"{key}.png")
+                if os.path.exists(img_path):
+                    img = pygame.image.load(img_path).convert_alpha()
+                    if key in scale_targets:
+                        w, h = img.get_size()
+                        new_size = (int(w * scale_factor), int(h * scale_factor))
+                        img = pygame.transform.scale(img, new_size)
+                    self.images[key] = img
                 else:
                     raise FileNotFoundError()
             except (pygame.error, FileNotFoundError):

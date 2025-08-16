@@ -192,7 +192,6 @@ class BlueScreenAttack(AttackPattern):
             y = random.randint(50, SCREEN_HEIGHT - 50)
             point = WarningPoint((x,y), self.delay, [self.all_sprites], enemy.asset_manager)
             self.points.append(point)
-
 class WarningPoint(pygame.sprite.Sprite):
     def __init__(self, pos, delay, groups, asset_manager):
         super().__init__(groups)
@@ -202,14 +201,22 @@ class WarningPoint(pygame.sprite.Sprite):
         self.spawn_time = pygame.time.get_ticks()
         self.delay = delay * 1000
         self.asset_manager = asset_manager
+        self.is_attack = False
+        self.attack_duration = 500  # 0.5초간 파란 화면 유지
 
     def update(self, dt):
-        if pygame.time.get_ticks() - self.spawn_time > self.delay:
-            self.image = self.asset_manager.get_image('bsod')
-            self.rect = self.image.get_rect(center=self.rect.center)
-            # Make it a bullet so it can damage the player
-            self.add(self.groups()[0]) # Re-add to update groups if needed
-            self.kill() # Or handle collision logic
+        current_time = pygame.time.get_ticks()
+        if not self.is_attack:
+            if current_time - self.spawn_time > self.delay:
+                # 공격 상태로 전환
+                self.is_attack = True
+                self.image = self.asset_manager.get_image('bsod')
+                self.rect = self.image.get_rect(center=self.rect.center)
+                self.spawn_time = current_time # 타이머 리셋
+        else:
+            # 공격 상태 지속 시간 체크
+            if current_time - self.spawn_time > self.attack_duration:
+                self.kill()
 
 
 class EnemyBullet(pygame.sprite.Sprite):

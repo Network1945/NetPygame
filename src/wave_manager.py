@@ -36,8 +36,8 @@ class WaveManager:
         
         # Wave duration (1 minute per wave)
         self.wave_start_time = 0
-        self.wave_duration = 60000  # 60 seconds in milliseconds
-        
+        self.wave_duration = 10000  # 10 seconds in milliseconds
+
         # Current wave configuration
         self.current_wave_config = None
         
@@ -164,7 +164,7 @@ class WaveManager:
             "spawn_pattern": "boss"
         }
         
-        self.enemies_to_spawn = 0  # No regular enemies
+        self.enemies_to_spawn = sum(self.current_wave_config["enemies"].values())
         self.enemies_spawned = 0
         
         # Start wave
