@@ -12,6 +12,14 @@ class Player(pygame.sprite.Sprite):
         self.rect.bottom = HEIGHT - PLAYER_BOUNDARY
         self.speedx = 0
         self.speedy = 0
+        
+        # Health system attributes
+        self.max_health = PLAYER_MAX_HEALTH
+        self.current_health = self.max_health
+        self.invincible = False
+        self.invincibility_start_time = 0
+        self.last_damage_time = 0
+        self.last_regen_time = pygame.time.get_ticks()
 
     def update(self):
         # Movement logic based on key presses (8-directional)
@@ -44,10 +52,32 @@ class Player(pygame.sprite.Sprite):
             self.rect.top = PLAYER_BOUNDARY
         if self.rect.bottom > HEIGHT - PLAYER_BOUNDARY:
             self.rect.bottom = HEIGHT - PLAYER_BOUNDARY
+        
+        # Update invincibility status
+        if self.invincible:
+            if pygame.time.get_ticks() - self.invincibility_start_time > PLAYER_INVINCIBILITY_DURATION:
+                self.invincible = False
+        
+        # Health regeneration logic
+        now = pygame.time.get_ticks()
+        if now - self.last_damage_time > PLAYER_REGEN_COOLDOWN:
+            if now - self.last_regen_time > (1000 / PLAYER_REGEN_RATE_PER_SECOND):
+                if self.current_health < self.max_health:
+                    self.current_health = min(self.max_health, self.current_health + PLAYER_REGEN_AMOUNT)
+                    self.last_regen_time = now
 
     def shoot(self):
         bullet = Bullet(self.rect.centerx, self.rect.top)
         return bullet
+    
+    def take_damage(self, amount):
+        if not self.invincible:
+            self.current_health -= amount
+            self.last_damage_time = pygame.time.get_ticks()
+            self.invincible = True
+            self.invincibility_start_time = pygame.time.get_ticks()
+            if self.current_health < 0:
+                self.current_health = 0
 
 class Bullet(pygame.sprite.Sprite):
     def __init__(self, x, y):
@@ -76,6 +106,9 @@ class Enemy(pygame.sprite.Sprite):
         self.rect.y = random.randrange(-100, -40)
         self.speedy = ENEMY_SPEEDS[enemy_type]
         self.speedx = 0
+        
+        # Assign damage based on enemy type
+        self.damage = ENEMY_DAMAGE[enemy_type]
         
         # Type-specific initialization
         if enemy_type == 'zigzag':

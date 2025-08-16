@@ -68,6 +68,21 @@ ENEMY_POINTS = {
 
 # Game settings
 PLAYER_LIVES = 3
+PLAYER_MAX_HEALTH = 100
+PLAYER_INVINCIBILITY_DURATION = 1500  # milliseconds after taking damage
+
+# Health regeneration settings
+PLAYER_REGEN_COOLDOWN = 3000  # ms: Time after last hit before regen starts
+PLAYER_REGEN_RATE_PER_SECOND = 5  # How many times per second regen happens
+PLAYER_REGEN_AMOUNT = 1  # Health gained per regen tick
+
+# Enemy damage values
+ENEMY_DAMAGE = {
+    'basic': 10,
+    'fast': 15,
+    'zigzag': 20,
+    'tank': 30,
+}
 
 # Network Monitor settings
 NETWORK_SPAWN_COOLDOWN = 0.1  # seconds between network-triggered spawns per type
