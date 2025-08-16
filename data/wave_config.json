@@ -50,5 +50,53 @@
     },
     "spawn_delay": 800,
     "spawn_pattern": "formation"
+  },
+  "6": {
+    "name": "Advanced Squadron",
+    "enemies": {
+      "bomber": 4,
+      "interceptor": 8,
+      "gunship": 5,
+      "fighter": 10,
+      "scout": 8
+    },
+    "spawn_delay": 700,
+    "spawn_pattern": "mixed"
+  },
+  "7": {
+    "name": "Heavy Bombardment",
+    "enemies": {
+      "bomber": 6,
+      "interceptor": 10,
+      "gunship": 8,
+      "fighter": 12,
+      "scout": 6
+    },
+    "spawn_delay": 650,
+    "spawn_pattern": "waves"
+  },
+  "8": {
+    "name": "Elite Strike Force",
+    "enemies": {
+      "bomber": 5,
+      "interceptor": 12,
+      "gunship": 10,
+      "fighter": 15,
+      "scout": 10
+    },
+    "spawn_delay": 600,
+    "spawn_pattern": "formation"
+  },
+  "9": {
+    "name": "Final Assault",
+    "enemies": {
+      "bomber": 8,
+      "interceptor": 15,
+      "gunship": 12,
+      "fighter": 18,
+      "scout": 12
+    },
+    "spawn_delay": 550,
+    "spawn_pattern": "mixed"
   }
 }

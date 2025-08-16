@@ -16,8 +16,10 @@ class WaveManager:
         
         # Wave state
         self.current_wave = 1
+        self.max_waves = 10  # Total waves to complete the game
         self.wave_active = False
         self.wave_complete = False
+        self.all_waves_complete = False  # Victory condition
         self.enemies_spawned = 0
         self.enemies_to_spawn = 0
         self.spawn_timer = 0
@@ -175,18 +177,15 @@ class WaveManager:
         
     def get_boss_type_for_wave(self, wave_number):
         """Determine which boss to spawn based on wave number"""
-        boss_cycle = wave_number // 5
-        
-        if boss_cycle == 1:  # Wave 5
-            return "network_overlord"
-        elif boss_cycle == 2:  # Wave 10
-            return "packet_storm"
-        elif boss_cycle == 3:  # Wave 15
-            return "cyber_fortress"
+        if wave_number == 5:
+            return "angry_migam"
+        elif wave_number == 10:
+            return "handsome_gilgil"
         else:
-            # For higher waves, cycle through boss types with increasing difficulty
-            boss_types = ["network_overlord", "packet_storm", "cyber_fortress"]
-            return boss_types[(boss_cycle - 1) % len(boss_types)]
+            # For other boss waves, cycle through a default list
+            boss_types = ["cyber_fortress", "network_overlord", "packet_storm"]
+            boss_cycle = (wave_number // 5) - 1
+            return boss_types[boss_cycle % len(boss_types)]
         
     def generate_procedural_wave(self, wave_number):
         """Generate a procedural wave for high wave numbers"""
@@ -215,7 +214,8 @@ class WaveManager:
         if self.in_transition:
             # Handle wave transition
             if current_time - self.wave_transition_timer > self.wave_transition_duration:
-                self.start_wave(self.current_wave + 1)
+                if self.current_wave < self.max_waves:
+                    self.start_wave(self.current_wave + 1)
         elif self.wave_active:
             if self.is_boss_wave:
                 # Boss battle logic
@@ -306,8 +306,13 @@ class WaveManager:
         """Mark current wave as complete and start transition"""
         self.wave_active = False
         self.wave_complete = True
-        self.in_transition = True
-        self.wave_transition_timer = pygame.time.get_ticks()
+        
+        # Check if all waves are complete (victory condition)
+        if self.current_wave >= self.max_waves:
+            self.all_waves_complete = True
+        else:
+            self.in_transition = True
+            self.wave_transition_timer = pygame.time.get_ticks()
         
     def get_wave_progress(self):
         """Get current wave progress as a percentage based on time elapsed"""
@@ -321,6 +326,7 @@ class WaveManager:
         """Get current wave information for UI display"""
         return {
             "wave_number": self.current_wave,
+            "max_waves": self.max_waves,
             "wave_name": self.current_wave_config.get("name", f"Wave {self.current_wave}") if self.current_wave_config else "Wave",
             "enemies_remaining": max(0, self.enemies_to_spawn - self.enemies_spawned),
             "enemies_alive": len(self.sprite_groups[1]) if len(self.sprite_groups) > 1 else 0,
@@ -328,5 +334,6 @@ class WaveManager:
             "in_transition": self.in_transition,
             "wave_active": self.wave_active,
             "is_boss_wave": self.is_boss_wave,
-            "boss_enemy": self.boss_enemy
+            "boss_enemy": self.boss_enemy,
+            "all_waves_complete": self.all_waves_complete
         }

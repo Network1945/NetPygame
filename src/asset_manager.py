@@ -98,7 +98,45 @@ class AssetManager:
                     pygame.draw.circle(surf, color, (width//2, height//2), min(width, height)//2)
                 
                 self.images[enemy_key] = surf
+        
+        # Load boss images
+        try:
+            if os.path.exists(os.path.join(image_path, 'migamboss.png')):
+                img = pygame.image.load(os.path.join(image_path, 'migamboss.png')).convert_alpha()
+                # Scale boss image appropriately (larger than enemies but not too big)
+                scale_factor = 0.3
+                new_size = (int(img.get_width() * scale_factor), int(img.get_height() * scale_factor))
+                img = pygame.transform.smoothscale(img, new_size)
+                self.images['migamboss'] = img
+            else:
+                # Create placeholder boss sprite if image not found
+                boss_surf = pygame.Surface((60, 60), pygame.SRCALPHA)
+                pygame.draw.circle(boss_surf, (255, 0, 255), (30, 30), 30)  # Magenta boss
+                self.images['migamboss'] = boss_surf
+        except (pygame.error, FileNotFoundError):
+            # Create placeholder boss sprite
+            boss_surf = pygame.Surface((60, 60), pygame.SRCALPHA)
+            pygame.draw.circle(boss_surf, (255, 0, 255), (30, 30), 30)  # Magenta boss
+            self.images['migamboss'] = boss_surf
             
+        # Load custom boss attack images
+        custom_images = {
+            'jesus': (100, 100, (255, 255, 255)),
+            'tang': (50, 50, (255, 100, 100)),
+            'bsod': (100, 100, (0, 0, 255))
+        }
+
+        for key, (width, height, color) in custom_images.items():
+            try:
+                if os.path.exists(os.path.join(image_path, f'{key}.png')):
+                    self.images[key] = pygame.image.load(os.path.join(image_path, f'{key}.png')).convert_alpha()
+                else:
+                    raise FileNotFoundError()
+            except (pygame.error, FileNotFoundError):
+                surf = pygame.Surface((width, height), pygame.SRCALPHA)
+                surf.fill(color)
+                self.images[key] = surf
+
     def load_sounds(self):
         """Load all game sounds"""
         sound_path = os.path.join('assets', 'sounds')

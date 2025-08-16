@@ -1,8 +1,8 @@
 {
   "network_overlord": {
     "health": 800,
-    "asset_key": "boss",
-    "scale_factor": 2.5,
+    "asset_key": "migamboss",
+    "scale_factor": 1.0,
     "phases": 3,
     "movement": {
       "type": "boss_hover",
@@ -12,16 +12,17 @@
     },
     "attack_phases": [
       {
-        "type": "rapid_fire",
+        "type": "spread_shot",
         "bullet_speed": 180,
         "fire_rate": 0.4,
-        "spread_angle": 15
+        "spread_angle": 15,
+        "bullet_count": 8
       },
       {
-        "type": "spiral",
-        "bullet_speed": 120,
-        "fire_rate": 0.2,
-        "bullet_count": 8
+        "type": "rapid_fire",
+        "bullet_speed": 250,
+        "fire_rate": 0.1,
+        "spread_angle": 5
       },
       {
         "type": "barrage",
@@ -38,9 +39,10 @@
     "scale_factor": 3.0,
     "phases": 4,
     "movement": {
-      "type": "boss_teleport",
+      "type": "boss_hover",
       "speed": 80,
-      "teleport_frequency": 3.0
+      "amplitude": 150,
+      "frequency": 0.7
     },
     "attack_phases": [
       {

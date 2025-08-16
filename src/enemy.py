@@ -18,10 +18,11 @@ class Enemy(pygame.sprite.Sprite):
         
         # Load sprite
         asset_key = self.config.get('asset_key', 'enemy')
-        self.image = asset_manager.get_image(asset_key)
-        if not self.image:
+        self.original_image = asset_manager.get_image(asset_key)
+        if not self.original_image:
             # Fallback to basic enemy sprite
-            self.image = asset_manager.get_image('enemy')
+            self.original_image = asset_manager.get_image('enemy')
+        self.image = self.original_image.copy()
         self.rect = self.image.get_rect(center=pos)
         
         # Position vector for smooth movement
@@ -36,25 +37,26 @@ class Enemy(pygame.sprite.Sprite):
         enemy_bullet_group = None
         
         # Try to get the bullet group from the game state
-        # This is a bit hacky but works for our current structure
         for group in groups:
             if hasattr(group, '_spritedict'):
-                # Check if this group contains bullets by looking for EnemyBullet instances
                 for sprite in group:
                     if hasattr(sprite, '__class__') and 'Bullet' in sprite.__class__.__name__:
                         enemy_bullet_group = group
                         break
         
-        # If we couldn't find a bullet group, create a temporary one
         if enemy_bullet_group is None:
             enemy_bullet_group = pygame.sprite.Group()
         
-        # Behavior components created via factories based on config
+        # Behavior components
         self.movement = create_movement_pattern(self.config['movement'])
         self.attack = create_attack_pattern(self.config['attack'], all_sprites, enemy_bullet_group)
         
         # Internal state
-        self.age = 0.0  # Time since spawn
+        self.age = 0.0
+        
+        # Visual effects for blinking
+        self.flash_timer = 0.0
+        self.flash_duration = 0.1  # Blink for 0.1 seconds
         
     def load_enemy_config(self, enemy_type):
         """Load enemy configuration from JSON file"""
@@ -84,23 +86,35 @@ class Enemy(pygame.sprite.Sprite):
         """Update enemy state"""
         self.age += dt
         
-        # Delegate behavior to components
+        # Update behavior
         self.movement.update(dt, self)
         if self.player:
             self.attack.update(dt, self, self.player)
         
-        # Update rect from position vector
+        # Update rect from position
         self.rect.center = (round(self.pos.x), round(self.pos.y))
         
-        # Basic despawn logic - remove when off screen
+        # Update flash effect
+        if self.flash_timer > 0:
+            self.flash_timer -= dt
+            # Create a white version of the image for flashing
+            white_image = self.original_image.copy()
+            white_image.fill((255, 255, 255), special_flags=pygame.BLEND_RGB_ADD)
+            self.image = white_image
+        else:
+            self.image = self.original_image
+
+        # Despawn when off screen
         screen_rect = pygame.display.get_surface().get_rect()
-        expanded_rect = screen_rect.inflate(100, 100)  # Give some margin
+        expanded_rect = screen_rect.inflate(100, 100)
         if not self.rect.colliderect(expanded_rect):
             self.kill()
             
-    def take_damage(self, damage=5):
+    def take_damage(self, damage=10):
         """Take damage and return True if enemy is destroyed"""
         self.health -= damage
+        self.flash_timer = self.flash_duration  # Start flashing
+        
         if self.health <= 0:
             self.kill()
             return True

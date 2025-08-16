@@ -44,6 +44,7 @@ class GameplayState(State):
         
         # Game variables
         self.score = 0
+        self.game_won = False  # Victory state
         
         # Wave management
         sprite_groups = [self.all_sprites, self.enemy_group, self.enemy_bullet_group]
@@ -60,8 +61,8 @@ class GameplayState(State):
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
                     self.game.running = False
-                elif event.key == pygame.K_r and self.player.is_dead:
-                    # Restart game
+                elif event.key == pygame.K_r and (self.player.is_dead or self.game_won):
+                    # Restart game from game over or victory screen
                     self.game.state_manager.change_state('gameplay')
     
     # --- 네트워크 적 스폰을 위한 새로운 메서드 추가 ---
@@ -81,11 +82,20 @@ class GameplayState(State):
         
     def update(self, dt):
         """Update gameplay state"""
+        # Don't update if game is won or player is dead
+        if self.game_won or self.player.is_dead:
+            return
+            
         # Update all sprites
         self.all_sprites.update(dt)
         
         # Update wave manager (handles enemy spawning)
         self.wave_manager.update(dt)
+        
+        # Check for victory condition
+        wave_info = self.wave_manager.get_wave_info()
+        if wave_info['all_waves_complete']:
+            self.game_won = True
             
         # Collision detection
         self.check_collisions()
@@ -175,7 +185,7 @@ class GameplayState(State):
         
         # Draw wave information
         wave_info = self.wave_manager.get_wave_info()
-        wave_text = font.render(f"Wave {wave_info['wave_number']}: {wave_info['wave_name']}", True, WHITE)
+        wave_text = font.render(f"Wave {wave_info['wave_number']}/{wave_info['max_waves']}: {wave_info['wave_name']}", True, WHITE)
         screen.blit(wave_text, (10, 130))
         
         if wave_info['is_boss_wave']:
@@ -251,6 +261,8 @@ class GameplayState(State):
         # Game over screen
         if self.player.is_dead:
             self.draw_game_over(screen)
+        elif self.game_won:
+            self.draw_game_success(screen)
             
     def draw_game_over(self, screen):
         """Draw game over screen"""
@@ -274,6 +286,42 @@ class GameplayState(State):
         
         restart_text = score_font.render("Press R to restart or ESC to quit", True, WHITE)
         restart_rect = restart_text.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 + 50))
+        screen.blit(restart_text, restart_rect)
+    
+    def draw_game_success(self, screen):
+        """Draw victory screen"""
+        # Semi-transparent overlay
+        overlay = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT))
+        overlay.set_alpha(128)
+        overlay.fill(BLACK)
+        screen.blit(overlay, (0, 0))
+        
+        # Victory text
+        title_font = self.game.asset_manager.get_font('title')
+        score_font = self.game.asset_manager.get_font('score')
+        
+        victory_text = title_font.render("VICTORY!", True, (0, 255, 0))  # Green for success
+        victory_rect = victory_text.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 - 80))
+        screen.blit(victory_text, victory_rect)
+        
+        # Success message
+        success_text = score_font.render("Congratulations! You saved the galaxy!", True, (255, 215, 0))  # Gold
+        success_rect = success_text.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 - 30))
+        screen.blit(success_text, success_rect)
+        
+        # All waves completed
+        waves_text = score_font.render("All 10 waves completed!", True, WHITE)
+        waves_rect = waves_text.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2))
+        screen.blit(waves_text, waves_rect)
+        
+        # Final score
+        final_score_text = score_font.render(f"Final Score: {self.score}", True, (255, 255, 0))  # Yellow
+        final_score_rect = final_score_text.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 + 30))
+        screen.blit(final_score_text, final_score_rect)
+        
+        # Restart instructions
+        restart_text = score_font.render("Press R to restart or ESC to quit", True, WHITE)
+        restart_rect = restart_text.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 + 80))
         screen.blit(restart_text, restart_rect)
 
 

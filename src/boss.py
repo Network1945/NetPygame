@@ -94,6 +94,32 @@ class Boss(pygame.sprite.Sprite):
         
     def load_boss_config(self, boss_type):
         """Load boss configuration from JSON file"""
+        boss_configs = {
+            "angry_migam": {
+                "health": 1000,
+                "asset_key": "migamboss",
+                "phases": 3,
+                "movement": { "type": "boss_hover" },
+                "attack_phases": [
+                    { "type": "spread_shot_image", "image": "jesus", "bullet_count": 5, "spread_angle": 30, "cooldown": 1.5 },
+                    { "type": "fast_forward_shot_image", "image": "tang", "bullet_speed": 600, "cooldown": 0.5 },
+                    { "type": "blue_screen_attack", "num_points": 5, "delay": 1.0, "cooldown": 3.0 }
+                ]
+            },
+            "handsome_gilgil": {
+                "health": 1500,
+                "asset_key": "gilgilboss",
+                "phases": 1,
+                "movement": { "type": "boss_hover", "speed": 30, "amplitude": 120 },
+                "attack_phases": [
+                    { "type": "circular_shot", "bullet_count": 16, "cooldown": 1.0 }
+                ]
+            }
+        }
+        
+        if boss_type in boss_configs:
+            return boss_configs[boss_type]
+
         config_path = os.path.join('data', 'boss_config.json')
         try:
             with open(config_path, 'r') as f:
@@ -101,7 +127,7 @@ class Boss(pygame.sprite.Sprite):
                 return configs.get(boss_type, configs.get('basic', self.get_default_config()))
         except (FileNotFoundError, json.JSONDecodeError):
             return self.get_default_config()
-    
+
     def get_default_config(self):
         """Default boss configuration"""
         return {
