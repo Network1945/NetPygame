@@ -34,23 +34,12 @@ class Enemy(pygame.sprite.Sprite):
         
         # Get sprite groups for attack patterns
         all_sprites = groups[0] if groups else None
-        enemy_bullet_group = None
-        
-        # Try to get the bullet group from the game state
-        for group in groups:
-            if hasattr(group, '_spritedict'):
-                for sprite in group:
-                    if hasattr(sprite, '__class__') and 'Bullet' in sprite.__class__.__name__:
-                        enemy_bullet_group = group
-                        break
-        
-        if enemy_bullet_group is None:
-            enemy_bullet_group = pygame.sprite.Group()
+        # enemy_bullet_group을 groups 리스트에서 직접 가져옵니다.
+        enemy_bullet_group = groups[2] if len(groups) > 2 else pygame.sprite.Group()
         
         # Behavior components
         self.movement = create_movement_pattern(self.config['movement'])
         self.attack = create_attack_pattern(self.config['attack'], all_sprites, enemy_bullet_group)
-        
         # Internal state
         self.age = 0.0
         

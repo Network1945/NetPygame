@@ -26,7 +26,7 @@ class PowerUpEffect:
 
 # Specific power-up effect implementations
 class RapidFireEffect(PowerUpEffect):
-    def __init__(self, duration=15000): # 15 seconds
+    def __init__(self, duration=5000): # 5 seconds
         super().__init__(duration)
         self.original_delay = None
 
@@ -38,7 +38,7 @@ class RapidFireEffect(PowerUpEffect):
         player.shoot_delay = self.original_delay
 
 class SpreadShotEffect(PowerUpEffect):
-    def __init__(self, duration=15000): # 15 seconds
+    def __init__(self, duration=5000): # 5 seconds
         super().__init__(duration)
 
     def apply(self, player):

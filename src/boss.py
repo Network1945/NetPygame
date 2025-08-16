@@ -49,19 +49,9 @@ class Boss(pygame.sprite.Sprite):
         
         # Get sprite groups for attack patterns
         all_sprites = groups[0] if groups else None
-        enemy_bullet_group = None
-        
-        # Find bullet group
-        for group in groups:
-            if hasattr(group, '_spritedict'):
-                for sprite in group:
-                    if hasattr(sprite, '__class__') and 'Bullet' in sprite.__class__.__name__:
-                        enemy_bullet_group = group
-                        break
-        
-        if enemy_bullet_group is None:
-            enemy_bullet_group = pygame.sprite.Group()
-        
+        # enemy_bullet_group을 groups 리스트에서 직접 가져옵니다.
+        enemy_bullet_group = groups[2] if len(groups) > 2 else pygame.sprite.Group()
+
         # Boss-specific attributes
         self.phase = 1
         self.max_phases = self.config.get('phases', 3)
@@ -75,7 +65,6 @@ class Boss(pygame.sprite.Sprite):
             phase_config = self.config['attack_phases'][i] if i < len(self.config['attack_phases']) else self.config['attack_phases'][-1]
             pattern = create_attack_pattern(phase_config, all_sprites, enemy_bullet_group)
             self.attack_patterns.append(pattern)
-        
         # Movement pattern
         self.movement = create_movement_pattern(self.config['movement'])
         
