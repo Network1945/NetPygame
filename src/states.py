@@ -125,6 +125,7 @@ class GameplayState(State):
         self.all_sprites.add(self.player); self.player_group.add(self.player)
         
         self.score = 0; self.game_won = False
+        self.is_boss_active = False
         sprite_groups = [self.all_sprites, self.enemy_group, self.enemy_bullet_group]
         self.wave_manager = WaveManager(game.asset_manager, self.player, sprite_groups)
         
@@ -146,6 +147,20 @@ class GameplayState(State):
         if self.game_won or self.player.is_dead: return
         self.all_sprites.update(dt)
         self.wave_manager.update(dt)
+        wave_info = self.wave_manager.get_wave_info()
+        # 1. 보스가 나타났을 때
+        if wave_info['is_boss_wave'] and wave_info['boss_enemy']:
+           if not self.is_boss_active:
+               self.is_boss_active = True
+               if pygame.mixer.get_init():  # 믹서가 초기화되었는지 확인
+                   pygame.mixer.music.stop() # 보스가 나타나면 기존 BGM 정지
+
+       # 2. 보스를 물리쳤을 때
+        elif self.is_boss_active and not wave_info['boss_enemy']:
+           self.is_boss_active = False
+           self.game.play_bgm() # 보스가 사라지면 BGM 다시 재생
+        
+        # Check for victory condition
         if self.wave_manager.get_wave_info()['all_waves_complete']: self.game_won = True
         self.check_collisions()
         

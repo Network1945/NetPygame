@@ -63,7 +63,7 @@ class Boss(pygame.sprite.Sprite):
         self.attack_patterns = []
         for i in range(self.max_phases):
             phase_config = self.config['attack_phases'][i] if i < len(self.config['attack_phases']) else self.config['attack_phases'][-1]
-            pattern = create_attack_pattern(phase_config, all_sprites, enemy_bullet_group)
+            pattern = create_attack_pattern(phase_config, all_sprites, enemy_bullet_group, self.asset_manager)
             self.attack_patterns.append(pattern)
         # Movement pattern
         self.movement = create_movement_pattern(self.config['movement'])
@@ -200,6 +200,7 @@ class Boss(pygame.sprite.Sprite):
     
     def transition_to_phase(self, new_phase):
         """Transition to a new attack phase"""
+        self.attack_patterns[self.phase - 1].stop()  # Stop current attack pattern
         self.phase = new_phase
         self.invulnerable = True
         self.invulnerable_timer = 1.0  # 1 second invulnerability during transition
@@ -217,7 +218,7 @@ class Boss(pygame.sprite.Sprite):
             flash_surface.fill((255, 255, 255))
             self.image.blit(flash_surface, (0, 0), special_flags=pygame.BLEND_ADD)
     
-    def take_damage(self, damage=5):
+    def take_damage(self, damage=10):
         """Take damage and return True if boss is destroyed"""
         if self.invulnerable or self.is_entering:
             return False
@@ -226,6 +227,8 @@ class Boss(pygame.sprite.Sprite):
         self.flash_timer = 0.1  # Brief flash when hit
         
         if self.health <= 0:
+            for pattern in self.attack_patterns:
+                pattern.stop()
             self.kill()
             return True
         return False

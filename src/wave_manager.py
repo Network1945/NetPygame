@@ -149,9 +149,10 @@ class WaveManager:
         
     def start_boss_battle(self):
         """Start a boss battle"""
+        if pygame.mixer.get_init():  # 믹서가 초기화되었는지 확인
+            pygame.mixer.music.stop()  # Stop background music during boss battle
         # Determine boss type based on wave number
         boss_type = self.get_boss_type_for_wave(self.current_wave)
-        
         # Spawn the boss
         spawn_pos = (SCREEN_WIDTH // 2, -50)  # Center top of screen
         self.boss_enemy = Boss(spawn_pos, boss_type, self.asset_manager, self.player, self.sprite_groups)

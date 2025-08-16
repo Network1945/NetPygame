@@ -114,7 +114,7 @@ class AssetManager:
                     if key == "tang":
                         scale_factor = 0.35
                     elif key == "jesus":
-                        scale_factor = 0.5
+                        scale_factloador = 0.5
                     elif key == "bsod":
                         scale_factor = 0.4
                     w, h = img.get_size()
@@ -147,16 +147,48 @@ class AssetManager:
                     pygame.draw.circle(surf, color, (8, 24), 4)
                     pygame.draw.circle(surf, color, (width - 8, 24), 4)
                 self.images[key] = surf
-
     def load_sounds(self):
+        """Load all sound files."""
         sound_path = os.path.join('assets', 'sounds')
-        if not os.path.exists(sound_path): os.makedirs(sound_path)
+        
+        if not os.path.exists(sound_path):
+            os.makedirs(sound_path)
+
+        # 배경음악(BGM) 로드 (경로로 저장)
         try:
-            self.sounds['shoot'] = pygame.mixer.Sound(os.path.join(sound_path, 'shoot.wav')) if os.path.exists(os.path.join(sound_path, 'shoot.wav')) else None
-        except pygame.error: self.sounds['shoot'] = None
-        try:
-            self.sounds['explosion'] = pygame.mixer.Sound(os.path.join(sound_path, 'explosion.wav')) if os.path.exists(os.path.join(sound_path, 'explosion.wav')) else None
-        except pygame.error: self.sounds['explosion'] = None
+            bgm_path = os.path.join(sound_path, 'bgm.mp3')
+            if os.path.exists(bgm_path):
+                self.sounds['background'] = bgm_path
+        except Exception as e:
+            print(f"Error loading background music path: {e}")
+
+        # 효과음(SFX) 로드 (Sound 객체로 저장)
+        sound_files = {
+            'shoot': 'shoot.wav',
+            'explosion': 'explosion.wav',
+            'hallelujah': 'Hallelujah.mp3',
+            'tangtang': 'tangtang.mp3',
+            'bsod': 'BSOD.mp3'
+        }
+        for key, filename in sound_files.items():
+            try:
+                file_path = os.path.join(sound_path, filename)
+                if os.path.exists(file_path):
+                    sound = pygame.mixer.Sound(file_path)
+                    
+                    # 개별 사운드 볼륨 조절
+                    if key == 'tangtang':
+                        sound.set_volume(0.3)
+                    elif key == 'hallelujah':
+                        sound.set_volume(1.2)
+                        
+                    self.sounds[key] = sound
+                else:
+                    # 파일이 없을 경우 None으로 설정
+                    self.sounds[key] = None
+            except pygame.error as e:
+                print(f"Error loading sound {filename}: {e}")
+                self.sounds[key] = None
             
     def load_fonts(self):
         font_path = os.path.join('assets', 'fonts')

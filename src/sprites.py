@@ -23,7 +23,7 @@ class Player(pygame.sprite.Sprite):
         self.weapon_level = 1
         
         # Health and lives system
-        self.max_health = 100000
+        self.max_health = 1000
         self.health = self.max_health
         self.lives = 3
         self.max_lives = 3
@@ -100,7 +100,7 @@ class Player(pygame.sprite.Sprite):
         if self.weapon_level > 5:
             self.weapon_level = 5
             
-    def take_damage(self, damage=20):
+    def take_damage(self, damage=5):
         """Take damage if not invulnerable, depleting shield first"""
         if self.invulnerable or self.is_dead:
             return False

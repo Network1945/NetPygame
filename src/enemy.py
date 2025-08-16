@@ -39,7 +39,7 @@ class Enemy(pygame.sprite.Sprite):
         
         # Behavior components
         self.movement = create_movement_pattern(self.config['movement'])
-        self.attack = create_attack_pattern(self.config['attack'], all_sprites, enemy_bullet_group)
+        self.attack = create_attack_pattern(self.config['attack'], all_sprites, enemy_bullet_group, self.asset_manager)
         # Internal state
         self.age = 0.0
         
@@ -99,7 +99,7 @@ class Enemy(pygame.sprite.Sprite):
         if not self.rect.colliderect(expanded_rect):
             self.kill()
             
-    def take_damage(self, damage=10):
+    def take_damage(self, damage=5):
         """Take damage and return True if enemy is destroyed"""
         self.health -= damage
         self.flash_timer = self.flash_duration  # Start flashing
