@@ -172,7 +172,7 @@ class SpreadShotImage(AttackPattern):
 class FastForwardShotImage(AttackPattern):
     def __init__(self, config, all_sprites, bullet_group):
         super().__init__(config, all_sprites, bullet_group)
-        self.bullet_speed = config.get('bullet_speed', 500)
+        self.bullet_speed = config.get('bullet_speed', 300)
         self.image_key = config.get('image', 'tang')
 
     def execute_attack(self, enemy, player):

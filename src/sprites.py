@@ -23,7 +23,7 @@ class Player(pygame.sprite.Sprite):
         self.weapon_level = 1
         
         # Health and lives system
-        self.max_health = 100
+        self.max_health = 100000
         self.health = self.max_health
         self.lives = 3
         self.max_lives = 3
